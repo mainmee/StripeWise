@@ -139,9 +139,13 @@ export default function Chat() {
             <div className="flex flex-col items-center justify-center gap-4 px-6 pt-6 pb-2 bg-transparent z-[5] relative">
               <div className="bg-neutral-100 text-black text-base rounded-xl px-8 py-6 w-full max-w-4xl shadow-md text-center">
                 <h2 className="text-2xl font-bold mb-2">StripeWise</h2>
-                <p className="text-lg">
-                  Start a conversation to spend wise. Try asking your AI financial coach:
-                </p>
+<p className="text-l">
+  Start a conversation to spend wise. Try asking your AI financial coach: <br /><br />
+  • Can I qualify for the Young Professionals Account if I’m employed?<br />
+  • What does the R340 monthly banking fee cover, and are there any additional hidden costs?<br />
+  • How do I access the complimentary life insurance, and what exactly does it cover?
+</p>
+
               </div>
             </div>
           )}
