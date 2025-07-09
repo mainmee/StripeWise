@@ -36,7 +36,8 @@ else
 
 // Utility function for making API calls
 const callBackendAPI = async (endpoint: string, method: 'GET' | 'POST' = 'GET', body?: any) => {
-	const apiBaseUrl = env.IS_LOCAL ? 'http://localhost:8787' : env.API_BASE_URL || 'https://your-api-worker.workers.dev';
+	// Use the correct API URL from Wrangler output
+	const apiBaseUrl = env.IS_LOCAL ? 'http://127.0.0.1:8787' : env.API_BASE_URL || 'https://your-api-worker.workers.dev';
 	
 	console.log(`🔌 Making API call to: ${apiBaseUrl}${endpoint}`);
 	console.log(`📤 Method: ${method}`, body ? `Body: ${JSON.stringify(body)}` : 'No body');
@@ -84,13 +85,15 @@ export class MyMCP extends McpAgent {
 			},
 			async ({ userId, monthlyIncome, expenses }) => {
 				try {
-					// Call the backend API for spending insights
-					const response = await callBackendAPI('/api/spending-insights', 'POST', { 
-							userId,
-							monthlyIncome,
-							expenses 
-						}
-					);
+					// Call the backend API for spending insights (GET request)
+					// Convert parameters to query string for GET request
+					const queryParams = new URLSearchParams();
+					if (userId) queryParams.append('userId', userId);
+					if (monthlyIncome) queryParams.append('monthlyIncome', monthlyIncome.toString());
+					if (expenses) queryParams.append('expenses', JSON.stringify(expenses));
+					
+					const endpoint = `/api/spending-insights${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+					const response = await callBackendAPI(endpoint, 'GET');
 
 					return { content: [{ type: "text", text: JSON.stringify(response, null, 2) }] };
 				} catch (error) {
@@ -225,7 +228,7 @@ export class MyMCP extends McpAgent {
 
 		this.server.tool(
 			"getFinancialAdvice",
-			"Get comprehensive financial advice and health analysis from the backend API",
+			"Get comprehensive financial advice and health analysis from the backend API. Use timeframe: week, month, quarter, or year only.",
 			{
 				userId: z.string(),
 				timeframe: z.enum(["week", "month", "quarter", "year"]).optional().default("month")
@@ -341,7 +344,8 @@ export class MyMCP extends McpAgent {
 			async () => {
 				try {
 					console.log("🏥 Testing API connection...");
-					const health = await callBackendAPI('/api/health');
+					// The health endpoint is at the root path, not /api/health
+					const health = await callBackendAPI('/', 'GET');
 					return { 
 						content: [{ 
 							type: "text", 
@@ -353,7 +357,7 @@ export class MyMCP extends McpAgent {
 					return { 
 						content: [{ 
 							type: "text", 
-							text: `❌ API Connection Failed!\n\nError: ${(error as Error).message}\n\nPlease check:\n1. Is the API running on http://localhost:8787?\n2. Try visiting http://localhost:8787/ui in your browser\n3. Check the console logs for more details` 
+							text: `❌ API Connection Failed!\n\nError: ${(error as Error).message}\n\nPlease check:\n1. Is the API running on http://127.0.0.1:8787?\n2. Try visiting http://127.0.0.1:8787/ui in your browser\n3. Check the console logs for more details` 
 						}] 
 					};
 				}
