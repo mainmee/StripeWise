@@ -27,12 +27,19 @@ if (env.MODEL_PROVIDER == "azure") {
 else
 {
   // This uses the OPENAI_API_KEY environment variable/secret by default
-  model = openai(env.OPENAI_API_MODEL);
+  if (env.OPENAI_API_MODEL && env.OPENAI_API_KEY) {
+    model = openai(env.OPENAI_API_MODEL);
+  } else {
+    console.warn('⚠️ OpenAI API key or model not configured properly');
+  }
 }
 
 // Utility function for making API calls
 const callBackendAPI = async (endpoint: string, method: 'GET' | 'POST' = 'GET', body?: any) => {
 	const apiBaseUrl = env.IS_LOCAL ? 'http://localhost:8787' : env.API_BASE_URL || 'https://your-api-worker.workers.dev';
+	
+	console.log(`🔌 Making API call to: ${apiBaseUrl}${endpoint}`);
+	console.log(`📤 Method: ${method}`, body ? `Body: ${JSON.stringify(body)}` : 'No body');
 	
 	const response = await fetch(`${apiBaseUrl}${endpoint}`, {
 		method,
@@ -42,11 +49,15 @@ const callBackendAPI = async (endpoint: string, method: 'GET' | 'POST' = 'GET', 
 		...(body && { body: JSON.stringify(body) })
 	});
 
+	console.log(`📥 API Response: ${response.status} ${response.statusText}`);
+
 	if (!response.ok) {
 		throw new Error(`API call failed: ${response.status} ${response.statusText}`);
 	}
 
-	return await response.json();
+	const data = await response.json();
+	console.log(`✅ API Success:`, data);
+	return data;
 };
 
 export class MyMCP extends McpAgent {
@@ -318,6 +329,33 @@ export class MyMCP extends McpAgent {
 				} catch (error) {
 					console.error('Error calling sustainability tips API:', error);
 					return { content: [{ type: "text", text: `Unable to fetch sustainability tips: ${(error as Error).message}` }] };
+				}
+			}
+		);
+
+		// Health check tool to test API connection
+		this.server.tool(
+			"testAPIConnection",
+			"Test if the backend API is connected and responding",
+			{},
+			async () => {
+				try {
+					console.log("🏥 Testing API connection...");
+					const health = await callBackendAPI('/api/health');
+					return { 
+						content: [{ 
+							type: "text", 
+							text: `✅ API Connection Successful!\n\nResponse: ${JSON.stringify(health, null, 2)}` 
+						}] 
+					};
+				} catch (error) {
+					console.error('❌ API connection failed:', error);
+					return { 
+						content: [{ 
+							type: "text", 
+							text: `❌ API Connection Failed!\n\nError: ${(error as Error).message}\n\nPlease check:\n1. Is the API running on http://localhost:8787?\n2. Try visiting http://localhost:8787/ui in your browser\n3. Check the console logs for more details` 
+						}] 
+					};
 				}
 			}
 		);
