@@ -13,6 +13,11 @@
   --glow-color: rgba(167, 139, 250, 0.6);
 }
 
+/* Prevent overscroll or pull-to-refresh from affecting background */
+body {
+  overscroll-behavior: none;
+}
+
 /* Markdown Table Styling (Tailwind @apply) */
 .markdown-body table {
   @apply w-full border-collapse my-4 text-[0.95em];
@@ -137,9 +142,12 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  background-repeat: no-repeat;
   overflow-y: auto;
+  height: auto;
   min-height: 100vh;
   position: relative;
+  overscroll-behavior: none;
 }
 
 .chat-container::before {
@@ -153,6 +161,7 @@
   animation: gradientShift 15s ease infinite;
   z-index: 0;
   opacity: 0.3;
+  background-attachment: fixed;
 }
 
 @keyframes gradientShift {
@@ -161,15 +170,11 @@
   100% { background-position: 0% 50%; }
 }
 
-/* Landing and Title Sections */
-.landing-section {
-  background: transparent;
-  z-index: 1;
-}
-
+/* Title and Chatbot Sections */
 .title-section {
   background: transparent;
   z-index: 1;
+  position: relative;
 }
 
 .title {
