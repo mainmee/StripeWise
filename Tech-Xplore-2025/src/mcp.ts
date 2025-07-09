@@ -30,6 +30,24 @@ else
   model = openai(env.OPENAI_API_MODEL);
 }
 
+// Utility function for making API calls
+const callBackendAPI = async (endpoint: string, method: 'GET' | 'POST' = 'GET', body?: any) => {
+	const apiBaseUrl = env.IS_LOCAL ? 'http://localhost:8787' : env.API_BASE_URL || 'https://your-api-worker.workers.dev';
+	
+	const response = await fetch(`${apiBaseUrl}${endpoint}`, {
+		method,
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		...(body && { body: JSON.stringify(body) })
+	});
+
+	if (!response.ok) {
+		throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+	}
+
+	return await response.json();
+};
 
 export class MyMCP extends McpAgent {
 	// @ts-ignore
@@ -45,6 +63,7 @@ export class MyMCP extends McpAgent {
 			"analyzeSpendingPatterns",
 			"Analyze user's spending patterns and provide insights",
 			{
+				userId: z.string(),
 				monthlyIncome: z.number().optional(),
 				expenses: z.array(z.object({
 					category: z.string(),
@@ -52,9 +71,20 @@ export class MyMCP extends McpAgent {
 					description: z.string().optional()
 				})).optional()
 			},
-			async ({ monthlyIncome, expenses }) => {
-				if (env.IS_LOCAL) {
-					// Mock spending analysis for demo
+			async ({ userId, monthlyIncome, expenses }) => {
+				try {
+					// Call the backend API for spending insights
+					const response = await callBackendAPI('/api/spending-insights', 'POST', { 
+							userId,
+							monthlyIncome,
+							expenses 
+						}
+					);
+
+					return { content: [{ type: "text", text: JSON.stringify(response, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling spending insights API:', error);
+					// Fallback to mock data if API fails
 					const mockAnalysis = {
 						totalSpending: 15000,
 						topCategories: ["Groceries: R3,500", "Entertainment: R2,800", "Transport: R2,200"],
@@ -65,10 +95,7 @@ export class MyMCP extends McpAgent {
 							"Consider carpooling or public transport to reduce transport costs"
 						]
 					};
-					return { content: [{ type: "text", text: JSON.stringify(mockAnalysis, null, 2) }] };
-				} else {
-					// Here you would integrate with Investec's API or your backend API
-					return { content: [{ type: "text", text: "Spending analysis would connect to real banking data here" }] };
+					return { content: [{ type: "text", text: `API unavailable, using mock data: ${JSON.stringify(mockAnalysis, null, 2)}` }] };
 				}
 			}
 		);
@@ -182,6 +209,116 @@ export class MyMCP extends McpAgent {
 					],
 				});
 				return { content: [{ type: "text", text: result.text }] };
+			}
+		);
+
+		this.server.tool(
+			"getFinancialAdvice",
+			"Get comprehensive financial advice and health analysis from the backend API",
+			{
+				userId: z.string(),
+				timeframe: z.enum(["week", "month", "quarter", "year"]).optional().default("month")
+			},
+			async ({ userId, timeframe }) => {
+				try {
+					// Call the backend API for financial advice
+					const response = await callBackendAPI('/api/financial-advice', 'GET');
+
+					// Format the response for better readability (using type assertion for API response)
+					const apiData = response as {
+						financialHealthScore: number;
+						budgetAnalysis: any;
+						advice: any[];
+						goals: any[];
+					};
+					
+					const formattedResponse = {
+						financialHealthScore: apiData.financialHealthScore,
+						budgetAnalysis: apiData.budgetAnalysis,
+						personalizedAdvice: apiData.advice,
+						goals: apiData.goals
+					};
+					
+					return { content: [{ type: "text", text: JSON.stringify(formattedResponse, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling financial advice API:', error);
+					return { content: [{ type: "text", text: `Unable to fetch financial advice: ${(error as Error).message}` }] };
+				}
+			}
+		);
+
+		this.server.tool(
+			"getTransactions",
+			"Retrieve user's transaction history from the backend API",
+			{
+				userId: z.string(),
+				timeframe: z.enum(["week", "month", "quarter", "year"]).optional().default("month")
+			},
+			async ({ userId, timeframe }) => {
+				try {
+					const transactions = await callBackendAPI('/api/transactions', 'POST', { userId, timeframe });
+					return { content: [{ type: "text", text: JSON.stringify(transactions, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling transactions API:', error);
+					return { content: [{ type: "text", text: `Unable to fetch transactions: ${(error as Error).message}` }] };
+				}
+			}
+		);
+
+		this.server.tool(
+			"getESGInvestments",
+			"Get ESG (Environmental, Social, Governance) investment recommendations",
+			{
+				investmentAmount: z.number().optional(),
+				riskProfile: z.enum(["conservative", "moderate", "aggressive"]).optional()
+			},
+			async ({ investmentAmount, riskProfile }) => {
+				try {
+					const esgData = await callBackendAPI('/api/esg-investments');
+					return { content: [{ type: "text", text: JSON.stringify(esgData, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling ESG investments API:', error);
+					return { content: [{ type: "text", text: `Unable to fetch ESG investments: ${(error as Error).message}` }] };
+				}
+			}
+		);
+
+		this.server.tool(
+			"getCarbonFootprint",
+			"Analyze user's carbon footprint based on their transactions",
+			{
+				userId: z.string(),
+				timeframe: z.enum(["week", "month", "quarter", "year"]).optional().default("month")
+			},
+			async ({ userId, timeframe }) => {
+				try {
+					const carbonData = await callBackendAPI('/api/carbon', 'POST', { userId, timeframe });
+					return { content: [{ type: "text", text: JSON.stringify(carbonData, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling carbon footprint API:', error);
+					return { content: [{ type: "text", text: `Unable to fetch carbon footprint data: ${(error as Error).message}` }] };
+				}
+			}
+		);
+
+		this.server.tool(
+			"getSustainabilityTips",
+			"Get personalized sustainability tips and recommendations",
+			{
+				userProfile: z.object({
+					location: z.string().optional(),
+					lifestyle: z.enum(["urban", "suburban", "rural"]).optional(),
+					interests: z.array(z.string()).optional()
+				}).optional()
+			},
+			async ({ userProfile }) => {
+				try {
+					const sustainabilityTips = await callBackendAPI('/api/sustainability-tips');
+					return { content: [{ type: "text", text: JSON.stringify(sustainabilityTips, null, 2) }] };
+				} catch (error) {
+					console.error('Error calling sustainability tips API:', error);
+					return { content: [{ type: "text", text: `Unable to fetch sustainability tips: ${(error as Error).message}` }] };
+				}
 			}
 		);
 	}

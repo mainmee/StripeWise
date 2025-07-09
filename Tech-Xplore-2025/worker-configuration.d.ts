@@ -14,6 +14,7 @@ declare namespace Cloudflare {
         AI_AZURE_MODEL_DEPLOYMENT: string; // Secret: Azure OpenAI model name
         OPENAI_API_KEY: string; // Secret: OpenAI API key
         OPENAI_API_MODEL: string; // Secret: OpenAI model name
+        API_BASE_URL: string; // Secret: Backend API base URL
 	}
 }
 interface Env extends Cloudflare.Env {}
