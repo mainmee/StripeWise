@@ -1,0 +1,17 @@
+# Public Directory
+
+This directory contains static assets for the VitePress documentation site:
+
+- `logo.svg` - Site logo (to be added)
+- `favicon.ico` - Site favicon (to be added)
+
+## Adding Assets
+
+To add the logo and favicon:
+
+1. Add `logo.svg` to this directory
+2. Add `favicon.ico` to this directory  
+3. Uncomment the logo and favicon references in `.vitepress/config.js`
+
+The logo should be a simple SVG that works well in both light and dark themes.
+The favicon should be a 32x32 or 16x16 ICO file. 
