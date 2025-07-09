@@ -26,6 +26,7 @@ import {
 export default function Chat() {
   const [showDebug, setShowDebug] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState("auto");
+  const [userSelected, setUserSelected] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { currentUser } = useUserManagement();
@@ -85,13 +86,13 @@ export default function Chat() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="" />
       <div className="relative z-[5] h-[calc(100vh-2rem)] h-[90%] w-[97%] mx-auto flex flex-col shadow-xl rounded-md overflow-hidden border border-neutral-300 bg-white">
-
         {/* Header */}
         <div className="px-4 py-3 border-b border-neutral-300 flex justify-between items-center sticky top-0 z-[5] bg-white">
-          <UserSelector className="mr-2" />
-
+          <UserSelector
+            className="mr-2"
+            onClick={() => setUserSelected(true)}
+          />
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <Bug size={16} className="text-black" />
@@ -116,40 +117,40 @@ export default function Chat() {
           </div>
         </div>
 
-        {/* Logo and Video */}
-        <div className="flex flex-col items-center justify-center gap-4 px-6 pt-6 pb-2 bg-transparent z-[10] relative">
-          <img
-            src="public/investec-logo1.png"
-            alt="Investec Logo"
-            className="max-w-[80%] max-h-12 object-contain select-auto pointer-events-none"
-          />
-          <video
-            src="https://public.flourish.studio/uploads/1595817/c850041b-70a5-4267-9d7f-1092d0631bcd.mov"
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="max-w-[80%] max-h-64 object-contain rounded-xl shadow-none mix-blend-multiply select-auto pointer-events-none"
-          />
-        </div>
+<div className="flex flex-col items-center justify-center gap-4 px-6 pt-6 pb-2 bg-transparent z-[0] relative">
+	            <img
+              src="public/investec-logo1.png"
+              alt="Investec Logo"
+              className="max-w-[80%] max-h-12 object-contain select-auto pointer-events-none"
+            />
+            <video
+              src="https://public.flourish.studio/uploads/1595817/c850041b-70a5-4267-9d7f-1092d0631bcd.mov"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="max-w-[80%] max-h-64 object-contain rounded-xl shadow-none mix-blend-multiply select-auto pointer-events-none"
+            />
+                 </div>
+        {/* Logo + Video + StripeWise Text Box */}
+        {!userSelected && agentMessages.length === 0 && (
+          <div className="flex flex-col items-center justify-center gap-4 px-6 pt-6 pb-2 bg-transparent z-[0] relative">
+
+            <div className="bg-neutral-100 text-black text-base rounded-xl px-8 py-6 w-full max-w-4xl shadow-md text-center">
+              <h2 className="text-2xl font-bold mb-2">StripeWise</h2>
+              <p className="text-l">
+                Start a conversation to spend wise. Try asking your AI financial coach:
+                <br /><br />
+                • Can I qualify for the Young Professionals Account if I’m employed?<br />
+                • What does the R340 monthly banking fee cover, and are there any additional hidden costs?<br />
+                • How do I access the complimentary life insurance, and what exactly does it cover?
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-24 max-h-[calc(100vh-10rem)]">
-          {agentMessages.length === 0 && (
-            <div className="flex flex-col items-center justify-center gap-4 px-6 pt-6 pb-2 bg-transparent z-[5] relative">
-              <div className="bg-neutral-100 text-black text-base rounded-xl px-8 py-6 w-full max-w-4xl shadow-md text-center">
-                <h2 className="text-2xl font-bold mb-2">StripeWise</h2>
-<p className="text-l">
-  Start a conversation to spend wise. Try asking your AI financial coach: <br /><br />
-  • Can I qualify for the Young Professionals Account if I’m employed?<br />
-  • What does the R340 monthly banking fee cover, and are there any additional hidden costs?<br />
-  • How do I access the complimentary life insurance, and what exactly does it cover?
-</p>
-
-              </div>
-            </div>
-          )}
-
           {agentMessages.map((m: Message, index) => {
             const isUser = m.role === "user";
             const showAvatar = index === 0 || agentMessages[index - 1]?.role !== m.role;
@@ -281,7 +282,6 @@ export default function Chat() {
                     type="submit"
                     className="inline-flex items-center cursor-pointer justify-center gap-2 text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 rounded-full p-1.5 h-fit border border-neutral-200"
                     disabled={pendingToolCallConfirmation || !agentInput.trim()}
-                    aria-label="Send message"
                   >
                     <PaperPlaneTilt size={16} />
                   </button>
@@ -294,3 +294,4 @@ export default function Chat() {
     </div>
   );
 }
+
