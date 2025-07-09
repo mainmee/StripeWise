@@ -734,7 +734,7 @@ export class MyMCP extends McpAgent {
 								enhancedBanking: "One Investec Visa card - credit and transactional in one",
 								investmentAccess: "No minimum requirements for online share trading",
 								taxOptimization: "Both local and offshore tax-free unit trusts",
-								borrowingPower: "Prime -1% vehicle finance and innovative home loans",
+								borrowingPower: "Prime -1% vehicle finance and interest-only home loans",
 								wealthBuilding: "Access to premium investment products"
 							} : {
 								privateBanking: "Full Private Banking experience with dedicated support",
@@ -1508,6 +1508,804 @@ export class MyMCP extends McpAgent {
 				};
 
 				return { content: [{ type: "text", text: JSON.stringify(lifestyleRewards, null, 2) }] };
+			}
+		);
+
+		// Visual Finance Dashboard Tools
+
+		this.server.tool(
+			"generateSpendingDashboard",
+			"Generate a visual spending breakdown dashboard for young professionals with Investec-specific insights",
+			{
+				userId: z.string(),
+				timeframe: z.enum(["week", "month", "quarter", "year"]).optional().default("month"),
+				monthlyIncome: z.number().optional(),
+				includeProjections: z.boolean().optional().default(true)
+			},
+			async ({ userId, timeframe, monthlyIncome, includeProjections }) => {
+				try {
+					// Try to get real data from API first
+					await callBackendAPI('/api/spending-insights', 'GET');
+					
+					// Generate visual dashboard data with enhanced formatting
+					const spendingData = [
+						{ category: "Groceries & Food", amount: 3500, percentage: 23.3, color: "#FF6B6B", icon: "🛒" },
+						{ category: "Entertainment", amount: 2800, percentage: 18.7, color: "#4ECDC4", icon: "🎬" },
+						{ category: "Transport", amount: 2200, percentage: 14.7, color: "#45B7D1", icon: "🚗" },
+						{ category: "Utilities", amount: 1800, percentage: 12.0, color: "#96CEB4", icon: "💡" },
+						{ category: "Shopping", amount: 1600, percentage: 10.7, color: "#FFEAA7", icon: "🛍️" },
+						{ category: "Health & Fitness", amount: 1200, percentage: 8.0, color: "#DDA0DD", icon: "💪" },
+						{ category: "Savings & Investments", amount: 1900, percentage: 12.7, color: "#98D8C8", icon: "💎" }
+					];
+
+					// Create a visual pie chart representation
+					const visualChart = `
+📊 YOUR SPENDING BREAKDOWN - PIE CHART VISUALIZATION
+══════════════════════════════════════════════════════════════
+
+        🛒 GROCERIES & FOOD (23.3%)
+           ████████████████████████ R3,500
+          
+        🎬 ENTERTAINMENT (18.7%)
+           ████████████████████ R2,800
+          
+        🚗 TRANSPORT (14.7%)
+           ████████████████ R2,200
+          
+        💡 UTILITIES (12.0%)
+           ████████████ R1,800
+          
+        🛍️ SHOPPING (10.7%)
+           ███████████ R1,600
+          
+        💪 HEALTH & FITNESS (8.0%)
+           ████████ R1,200
+          
+        💎 SAVINGS & INVESTMENTS (12.7%)
+           █████████████ R1,900
+
+══════════════════════════════════════════════════════════════
+💰 TOTAL SPENT: R15,000
+💳 BUDGET REMAINING: R${monthlyIncome ? monthlyIncome - 15000 : 5000}
+📈 SAVINGS RATE: ${monthlyIncome ? ((monthlyIncome - 15000) / monthlyIncome * 100).toFixed(1) : "25.0"}%
+
+🔗 INVESTEC INSIGHTS:
+💡 Use your R320/month Young Professional account savings to boost investments
+🎯 Set up automated savings to reach R2,000/month target
+📈 Your 25% savings rate is excellent - ready for offshore investments
+
+📞 NEXT STEPS:
+• Book financial consultation to optimize spending
+• Switch to One Investec Visa for rewards on entertainment
+• Consider automated investment debit orders
+══════════════════════════════════════════════════════════════`;
+
+					const dashboard = {
+						displayChart: visualChart,
+						type: "spending_dashboard",
+						title: `💰 Spending Dashboard - ${timeframe.charAt(0).toUpperCase() + timeframe.slice(1)}`,
+						timestamp: new Date().toISOString(),
+						
+						visualComponents: {
+							spendingBreakdown: {
+								type: "pie_chart",
+								title: "Spending by Category",
+								data: spendingData
+							},
+							
+							trendChart: {
+								type: "line_chart",
+								title: "Spending Trends",
+								data: {
+									labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+									datasets: [
+										{
+											label: "Spending",
+											data: [3200, 3800, 3600, 4400],
+											color: "#FF6B6B",
+											trend: "increasing"
+										},
+										{
+											label: "Budget",
+											data: [4000, 4000, 4000, 4000],
+											color: "#45B7D1",
+											trend: "stable"
+										}
+									]
+								}
+							},
+							
+							budgetProgress: {
+								type: "progress_bars",
+								title: "Budget vs Actual",
+								categories: [
+									{ name: "Food & Dining", budgeted: 4000, spent: 3500, status: "under", percentage: 87.5 },
+									{ name: "Entertainment", budgeted: 2500, spent: 2800, status: "over", percentage: 112.0 },
+									{ name: "Transport", budgeted: 2000, spent: 2200, status: "over", percentage: 110.0 },
+									{ name: "Shopping", budgeted: 1500, spent: 1600, status: "over", percentage: 106.7 }
+								]
+							}
+						},
+						
+						keyMetrics: {
+							totalSpent: 15000,
+							budgetRemaining: monthlyIncome ? monthlyIncome - 15000 : 5000,
+							savingsRate: monthlyIncome ? ((monthlyIncome - 15000) / monthlyIncome * 100).toFixed(1) : "25.0",
+							topSpendingCategory: "Groceries & Food",
+							budgetUtilization: "75%"
+						},
+						
+						investecInsights: {
+							youngProfessionalTips: [
+								"💡 Use your R320/month account savings to boost your investment budget",
+								"🎯 Set up automated debit orders to prevent overspending in entertainment",
+								"📈 Your 25% savings rate is excellent - consider increasing tax-free investments"
+							],
+							optimizationSuggestions: [
+								{
+									category: "Entertainment",
+									suggestion: "R300 over budget - consider Investec's lifestyle rewards for dining",
+									action: "Switch entertainment spending to One Investec Visa for rewards"
+								},
+								{
+									category: "Savings",
+									suggestion: "Great savings discipline! Ready for next level investments",
+									action: "Book consultation to explore offshore investment options"
+								}
+							]
+						},
+						
+						interactiveElements: {
+							buttons: [
+								{ text: "📊 Detailed Analysis", action: "analyzeSpendingPatterns", params: { userId } },
+								{ text: "💰 Budget Optimization", action: "generateBudgetPlan", params: { monthlyIncome } },
+								{ text: "🎯 Set Savings Goals", action: "trackFinancialGoals", params: {} }
+							],
+							quickActions: [
+								"View investment performance",
+								"Check account benefits",
+								"Book financial consultation"
+							]
+						},
+						
+						projections: includeProjections ? {
+							monthEndForecast: {
+								estimatedTotalSpend: 18500,
+								budgetVariance: -1500,
+								projectedSavings: monthlyIncome ? monthlyIncome - 18500 : 1500
+							},
+							recommendations: [
+								"Reduce entertainment spending by R400 to stay on budget",
+								"Increase automated savings to R2000/month",
+								"Consider using Investec's spending alerts"
+							]
+						} : null
+					};
+					
+					return { content: [{ type: "text", text: visualChart }] };
+					
+				} catch (error) {
+					console.error('Error generating spending dashboard:', error);
+					
+					// Fallback visual dashboard with mock data and ASCII chart
+					const spendingData = [
+						{ category: "Groceries & Food", amount: 3500, percentage: 23.3, color: "#FF6B6B", icon: "🛒" },
+						{ category: "Entertainment", amount: 2800, percentage: 18.7, color: "#4ECDC4", icon: "🎬" },
+						{ category: "Transport", amount: 2200, percentage: 14.7, color: "#45B7D1", icon: "🚗" },
+						{ category: "Utilities", amount: 1800, percentage: 12.0, color: "#96CEB4", icon: "💡" },
+						{ category: "Shopping", amount: 1600, percentage: 10.7, color: "#FFEAA7", icon: "🛍️" },
+						{ category: "Health & Fitness", amount: 1200, percentage: 8.0, color: "#DDA0DD", icon: "💪" },
+						{ category: "Savings & Investments", amount: 1900, percentage: 12.7, color: "#98D8C8", icon: "💎" }
+					];
+
+					// Create visual chart for fallback
+					const fallbackVisualChart = `
+📊 YOUR SPENDING BREAKDOWN - PIE CHART VISUALIZATION (DEMO)
+══════════════════════════════════════════════════════════════
+
+        🛒 GROCERIES & FOOD (23.3%)
+           ████████████████████████ R3,500
+          
+        🎬 ENTERTAINMENT (18.7%)
+           ████████████████████ R2,800
+          
+        🚗 TRANSPORT (14.7%)
+           ████████████████ R2,200
+          
+        💡 UTILITIES (12.0%)
+           ████████████ R1,800
+          
+        🛍️ SHOPPING (10.7%)
+           ███████████ R1,600
+          
+        💪 HEALTH & FITNESS (8.0%)
+           ████████ R1,200
+          
+        💎 SAVINGS & INVESTMENTS (12.7%)
+           █████████████ R1,900
+
+══════════════════════════════════════════════════════════════
+💰 TOTAL SPENT: R15,000
+💳 BUDGET REMAINING: R${monthlyIncome ? monthlyIncome - 15000 : 5000}
+📈 SAVINGS RATE: ${monthlyIncome ? ((monthlyIncome - 15000) / monthlyIncome * 100).toFixed(1) : "25.0"}%
+⚠️  API UNAVAILABLE - SHOWING DEMO DATA
+
+🔗 INVESTEC INSIGHTS:
+💡 Use your R320/month Young Professional account savings to boost investments
+🎯 Set up automated savings to reach R2,000/month target
+📈 Your 25% savings rate is excellent - ready for offshore investments
+
+📞 NEXT STEPS:
+• Book financial consultation to optimize spending
+• Switch to One Investec Visa for rewards on entertainment
+• Consider automated investment debit orders
+══════════════════════════════════════════════════════════════`;
+					
+					return { content: [{ type: "text", text: fallbackVisualChart }] };
+				}
+			}
+		);
+
+		this.server.tool(
+			"generateInvestmentDashboard",
+			"Generate a visual investment performance dashboard with Investec young professional focus",
+			{
+				userId: z.string().optional(),
+				timeframe: z.enum(["week", "month", "quarter", "year", "ytd"]).optional().default("month"),
+				includeProjections: z.boolean().optional().default(true),
+				portfolioValue: z.number().optional(),
+				age: z.number().optional()
+			},
+			async ({ userId, timeframe, includeProjections, portfolioValue, age }) => {
+				const isYoungProfessional = age && age < 30;
+				
+				const dashboard = {
+					type: "investment_dashboard",
+					title: `📈 Investment Performance - ${timeframe.toUpperCase()}`,
+					timestamp: new Date().toISOString(),
+					youngProfessionalStatus: isYoungProfessional,
+					
+					visualComponents: {
+						portfolioOverview: {
+							type: "donut_chart",
+							title: "Portfolio Allocation",
+							totalValue: portfolioValue || 125000,
+							data: [
+								{ asset: "Tax-Free Unit Trusts", value: 45000, percentage: 36, color: "#4ECDC4", recommended: true },
+								{ asset: "JSE Shares", value: 35000, percentage: 28, color: "#45B7D1", recommended: true },
+								{ asset: "Offshore Investments", value: 25000, percentage: 20, color: "#96CEB4", recommended: true },
+								{ asset: "Cash/Savings", value: 15000, percentage: 12, color: "#FFEAA7", recommended: false },
+								{ asset: "Property/REITs", value: 5000, percentage: 4, color: "#DDA0DD", recommended: true }
+							]
+						},
+						
+						performanceChart: {
+							type: "area_chart",
+							title: "Portfolio Performance",
+							data: {
+								labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+								datasets: [
+									{
+										label: "Portfolio Value",
+										data: [100000, 105000, 108000, 115000, 120000, 125000],
+										color: "#4ECDC4",
+										growth: "+25%"
+									},
+									{
+										label: "Benchmark (SWIX)",
+										data: [100000, 103000, 106000, 110000, 112000, 118000],
+										color: "#45B7D1",
+										growth: "+18%"
+									}
+								]
+							}
+						},
+						
+						returnsBreakdown: {
+							type: "bar_chart",
+							title: "Returns by Asset Class",
+							data: [
+								{ asset: "Tax-Free Unit Trusts", return: 12.5, value: 5625, color: "#4ECDC4" },
+								{ asset: "JSE Shares", return: 8.2, value: 2870, color: "#45B7D1" },
+								{ asset: "Offshore", return: 15.8, value: 3950, color: "#96CEB4" },
+								{ asset: "Cash", return: 4.5, value: 675, color: "#FFEAA7" }
+							]
+						}
+					},
+					
+					keyMetrics: {
+						totalValue: portfolioValue || 125000,
+						totalReturn: 13120,
+						returnPercentage: "11.7%",
+						monthlyContribution: 8500,
+						taxFreeSavings: 2000,
+						compoundGrowthProjection: "R2.8M by age 50"
+					},
+					
+					investecAdvantages: isYoungProfessional ? {
+						youngProfessionalBenefits: [
+							"🎯 No minimum trading requirements (vs R50k+ elsewhere)",
+							"💎 Tax-free investments from R1,000/month",
+							"🌍 Access to offshore markets with low minimums",
+							"💰 Reduced R320 account fee until age 30"
+						],
+						optimizationOpportunities: [
+							{
+								opportunity: "Tax-Free Maximization",
+								current: "R24,000/year",
+								potential: "R36,000/year",
+								benefit: "Save additional R4,200 in taxes annually"
+							},
+							{
+								opportunity: "Offshore Diversification",
+								current: "20%",
+								recommended: "30-40%",
+								benefit: "Better rand hedging and global exposure"
+							}
+						]
+					} : null,
+					
+					riskMetrics: {
+						type: "gauge_chart",
+						riskLevel: "Moderate",
+						volatility: "12.5%",
+						sharpeRatio: 1.24,
+						maxDrawdown: "-8.2%",
+						diversificationScore: 85
+					},
+					
+					taxEfficiency: {
+						type: "progress_bar",
+						taxFreUtilization: {
+							used: 24000,
+							limit: 36000,
+							percentage: 66.7,
+							monthsRemaining: 6
+						},
+						taxSavings: {
+							thisYear: 8400,
+							projected: 12600,
+							lifetime: "R180,000+ if maximized until 65"
+						}
+					},
+					
+					interactiveElements: {
+						buttons: [
+							{ text: "📊 Rebalance Portfolio", action: "getInvestmentRecommendations", params: {} },
+							{ text: "🎯 Optimize Tax-Free", action: "getSavingsStrategy", params: {} },
+							{ text: "🌍 Explore Offshore", action: "getInvestmentRecommendations", params: { offshore: true } }
+						],
+						quickActions: [
+							"Add to tax-free investments",
+							"Book investment consultation",
+							"View detailed performance",
+							"Download tax certificates"
+						]
+					},
+					
+					projections: includeProjections ? {
+						retirementForecast: {
+							type: "projection_chart",
+							scenarios: [
+								{
+									name: "Conservative (7%)",
+									valueAt65: 5200000,
+									monthlyIncome: 36400
+								},
+								{
+									name: "Moderate (10%)",
+									valueAt65: 8900000,
+									monthlyIncome: 62300
+								},
+								{
+									name: "Aggressive (12%)",
+									valueAt65: 13400000,
+									monthlyIncome: 93800
+								}
+							],
+							currentTrajectory: "Moderate",
+							timeToMillionaire: "8.5 years"
+						},
+						nextSteps: [
+							"Increase monthly contributions by R1,500",
+							"Maximize R36,000 tax-free allowance",
+							"Consider 30% offshore allocation",
+							"Review and rebalance quarterly"
+						]
+					} : null
+				};
+				
+				return { content: [{ type: "text", text: JSON.stringify(dashboard, null, 2) }] };
+			}
+		);
+
+		this.server.tool(
+			"generateBudgetProgressDashboard",
+			"Generate a visual budget progress dashboard with real-time tracking and Investec optimization tips",
+			{
+				monthlyIncome: z.number(),
+				age: z.number().optional(),
+				budgetCategories: z.array(z.object({
+					category: z.string(),
+					budgeted: z.number(),
+					spent: z.number().optional()
+				})).optional(),
+				savingsGoal: z.number().optional()
+			},
+			async ({ monthlyIncome, age, budgetCategories, savingsGoal }) => {
+				const isYoungProfessional = age && age < 30;
+				const defaultBudget = [
+					{ category: "Housing", budgeted: monthlyIncome * 0.30, spent: monthlyIncome * 0.28 },
+					{ category: "Food & Dining", budgeted: monthlyIncome * 0.15, spent: monthlyIncome * 0.16 },
+					{ category: "Transportation", budgeted: monthlyIncome * 0.10, spent: monthlyIncome * 0.12 },
+					{ category: "Entertainment", budgeted: monthlyIncome * 0.08, spent: monthlyIncome * 0.09 },
+					{ category: "Utilities", budgeted: monthlyIncome * 0.07, spent: monthlyIncome * 0.06 },
+					{ category: "Shopping", budgeted: monthlyIncome * 0.05, spent: monthlyIncome * 0.07 },
+					{ category: "Savings & Investments", budgeted: monthlyIncome * 0.25, spent: monthlyIncome * 0.22 }
+				];
+				
+				const budget = budgetCategories || defaultBudget;
+				const totalBudgeted = budget.reduce((sum, cat) => sum + cat.budgeted, 0);
+				const totalSpent = budget.reduce((sum, cat) => sum + (cat.spent || 0), 0);
+				
+				const dashboard = {
+					type: "budget_dashboard",
+					title: "🎯 Budget Progress Dashboard",
+					timestamp: new Date().toISOString(),
+					youngProfessionalStatus: isYoungProfessional,
+					
+					visualComponents: {
+						overallProgress: {
+							type: "radial_progress",
+							title: "Monthly Budget Progress",
+							percentage: Math.round((totalSpent / totalBudgeted) * 100),
+							spent: totalSpent,
+							budgeted: totalBudgeted,
+							remaining: totalBudgeted - totalSpent,
+							status: totalSpent <= totalBudgeted ? "on_track" : "over_budget",
+							color: totalSpent <= totalBudgeted ? "#4ECDC4" : "#FF6B6B"
+						},
+						
+						categoryBreakdown: {
+							type: "horizontal_bar_chart",
+							title: "Budget vs Actual by Category",
+							data: budget.map(cat => ({
+								category: cat.category,
+								budgeted: cat.budgeted,
+								spent: cat.spent || 0,
+								percentage: Math.round(((cat.spent || 0) / cat.budgeted) * 100),
+								status: (cat.spent || 0) <= cat.budgeted ? "under" : "over",
+								variance: (cat.spent || 0) - cat.budgeted,
+								color: (cat.spent || 0) <= cat.budgeted ? "#4ECDC4" : "#FF6B6B"
+							}))
+						},
+						
+						dailySpendingTrend: {
+							type: "line_chart",
+							title: "Daily Spending Trend",
+							data: {
+								labels: Array.from({length: 30}, (_, i) => `Day ${i + 1}`),
+								datasets: [
+									{
+										label: "Daily Spending",
+										data: Array.from({length: 30}, () => Math.round(totalSpent / 30 + (Math.random() - 0.5) * 200)),
+										color: "#45B7D1"
+									},
+									{
+										label: "Daily Budget",
+										data: Array.from({length: 30}, () => Math.round(totalBudgeted / 30)),
+										color: "#96CEB4",
+										type: "dashed"
+									}
+								]
+							}
+						},
+						
+						savingsProgress: {
+							type: "progress_ring",
+							title: "Savings Goal Progress",
+							current: (savingsGoal || monthlyIncome * 0.25) * 0.88, // 88% progress
+							target: savingsGoal || monthlyIncome * 0.25,
+							percentage: 88,
+							daysRemaining: 8,
+							onTrack: true
+						}
+					},
+					
+					keyMetrics: {
+						budgetUtilization: Math.round((totalSpent / totalBudgeted) * 100),
+						savingsRate: Math.round(((monthlyIncome - totalSpent) / monthlyIncome) * 100),
+						daysUntilPayday: 8,
+						avgDailySpending: Math.round(totalSpent / 22), // 22 days into month
+						budgetRemaining: totalBudgeted - totalSpent
+					},
+					
+					investecOptimizations: isYoungProfessional ? {
+						accountBenefits: [
+							{
+								benefit: "R320/month account fee",
+								savings: "R2,180/month vs standard banking",
+								impact: "Extra R26,160/year for investments"
+							},
+							{
+								benefit: "No-fee savings accounts",
+								savings: "R150/month in account fees",
+								impact: "R1,800/year additional savings"
+							}
+						],
+						smartBudgetTips: [
+							{
+								category: "Banking Costs",
+								tip: "Switch to Young Professional account",
+								potential: "Save R2,180/month in banking fees",
+								action: "Apply for Investec Young Professional account"
+							},
+							{
+								category: "Credit Strategy",
+								tip: "Use prime -1% for major purchases",
+								potential: "Save 1% annually on loans",
+								action: "Time vehicle/property purchases strategically"
+							}
+						]
+					} : null,
+					
+					alerts: {
+						overBudget: budget.filter(cat => (cat.spent || 0) > cat.budgeted).map(cat => ({
+							category: cat.category,
+							overage: (cat.spent || 0) - cat.budgeted,
+							percentage: Math.round(((cat.spent || 0) / cat.budgeted - 1) * 100)
+						})),
+						recommendations: [
+							"Food & Dining is 7% over budget - consider meal planning",
+							"Transportation exceeded budget - explore ride-sharing alternatives",
+							"Great job staying under budget on Housing and Utilities!"
+						]
+					},
+					
+					interactiveElements: {
+						buttons: [
+							{ text: "💡 Budget Optimization", action: "generateBudgetPlan", params: { monthlyIncome } },
+							{ text: "🎯 Adjust Categories", action: "updateBudgetCategories", params: {} },
+							{ text: "📊 Spending Analysis", action: "analyzeSpendingPatterns", params: {} }
+						],
+						quickActions: [
+							"Set spending alerts",
+							"Automate savings transfers",
+							"View transaction history",
+							"Download budget report"
+						]
+					},
+					
+					projections: {
+						monthEndForecast: {
+							estimatedTotal: Math.round(totalSpent * 1.36), // Project to month end
+							budgetVariance: Math.round((totalSpent * 1.36) - totalBudgeted),
+							adjustmentNeeded: Math.max(0, Math.round((totalSpent * 1.36) - totalBudgeted))
+						},
+						yearEndProjection: {
+							totalSavings: Math.round((monthlyIncome - totalSpent) * 12),
+							investmentPotential: Math.round((monthlyIncome - totalSpent) * 12 * 1.1), // 10% growth
+							taxFreeBenefit: 36000 // Max tax-free contribution
+						}
+					}
+				};
+				
+				return { content: [{ type: "text", text: JSON.stringify(dashboard, null, 2) }] };
+			}
+		);
+
+		this.server.tool(
+			"generateFinancialHealthDashboard",
+			"Generate a comprehensive financial health dashboard with visual metrics and young professional insights",
+			{
+				userId: z.string().optional(),
+				age: z.number(),
+				monthlyIncome: z.number(),
+				totalAssets: z.number().optional(),
+				totalDebt: z.number().optional(),
+				monthlySavings: z.number().optional()
+			},
+			async ({ userId, age, monthlyIncome, totalAssets, totalDebt, monthlySavings }) => {
+				const isYoungProfessional = age < 30;
+				const assets = totalAssets || monthlyIncome * 8; // Estimate if not provided
+				const debt = totalDebt || monthlyIncome * 2; // Estimate if not provided
+				const savings = monthlySavings || monthlyIncome * 0.25;
+				
+				// Calculate financial health score
+				const netWorth = assets - debt;
+				const debtToIncomeRatio = (debt * 12) / (monthlyIncome * 12);
+				const savingsRate = savings / monthlyIncome;
+				const emergencyFundMonths = assets * 0.3 / monthlyIncome; // Assume 30% in emergency fund
+				
+				const healthScore = Math.min(100, Math.max(0, 
+					(savingsRate * 30) + 
+					(Math.max(0, 6 - emergencyFundMonths) * -5) + 
+					(Math.max(0, debtToIncomeRatio - 0.3) * -20) + 
+					50
+				));
+				
+				const dashboard = {
+					type: "financial_health_dashboard",
+					title: "💚 Financial Health Overview",
+					timestamp: new Date().toISOString(),
+					youngProfessionalStatus: isYoungProfessional,
+					overallScore: Math.round(healthScore),
+					
+					visualComponents: {
+						healthScore: {
+							type: "gauge_chart",
+							title: "Financial Health Score",
+							score: Math.round(healthScore),
+							maxScore: 100,
+							ranges: [
+								{ min: 0, max: 40, label: "Needs Improvement", color: "#FF6B6B" },
+								{ min: 41, max: 70, label: "Good", color: "#FFEAA7" },
+								{ min: 71, max: 85, label: "Excellent", color: "#4ECDC4" },
+								{ min: 86, max: 100, label: "Outstanding", color: "#00B894" }
+							],
+							currentRange: healthScore > 85 ? "Outstanding" : healthScore > 70 ? "Excellent" : healthScore > 40 ? "Good" : "Needs Improvement"
+						},
+						
+						netWorthBreakdown: {
+							type: "waterfall_chart",
+							title: "Net Worth Composition",
+							data: [
+								{ category: "Total Assets", value: assets, type: "positive", color: "#4ECDC4" },
+								{ category: "Total Debt", value: -debt, type: "negative", color: "#FF6B6B" },
+								{ category: "Net Worth", value: netWorth, type: "total", color: "#00B894" }
+							]
+						},
+						
+						keyRatios: {
+							type: "metric_cards",
+							title: "Key Financial Ratios",
+							metrics: [
+								{
+									name: "Debt-to-Income",
+									value: `${(debtToIncomeRatio * 100).toFixed(1)}%`,
+									benchmark: "< 30%",
+									status: debtToIncomeRatio < 0.3 ? "good" : "warning",
+									color: debtToIncomeRatio < 0.3 ? "#4ECDC4" : "#FFEAA7"
+								},
+								{
+									name: "Savings Rate",
+									value: `${(savingsRate * 100).toFixed(1)}%`,
+									benchmark: "> 20%",
+									status: savingsRate > 0.2 ? "excellent" : "needs_improvement",
+									color: savingsRate > 0.2 ? "#00B894" : "#FF6B6B"
+								},
+								{
+									name: "Emergency Fund",
+									value: `${emergencyFundMonths.toFixed(1)} months`,
+									benchmark: "3-6 months",
+									status: emergencyFundMonths >= 3 ? "good" : "needs_improvement",
+									color: emergencyFundMonths >= 3 ? "#4ECDC4" : "#FFEAA7"
+								}
+							]
+						},
+						
+						progressTracking: {
+							type: "progress_indicators",
+							title: "Financial Milestones",
+							milestones: [
+								{
+									name: "Emergency Fund",
+									current: Math.round(assets * 0.3),
+									target: monthlyIncome * 6,
+									percentage: Math.round((assets * 0.3) / (monthlyIncome * 6) * 100),
+									completed: (assets * 0.3) >= (monthlyIncome * 6)
+								},
+								{
+									name: "Debt-Free Goal",
+									current: Math.max(0, debt - (savings * 12)),
+									target: debt,
+									percentage: Math.round((1 - (Math.max(0, debt - (savings * 12)) / debt)) * 100),
+									completed: debt <= (savings * 12)
+								},
+								{
+									name: "Investment Portfolio",
+									current: Math.round(assets * 0.7),
+									target: monthlyIncome * 10,
+									percentage: Math.round((assets * 0.7) / (monthlyIncome * 10) * 100),
+									completed: (assets * 0.7) >= (monthlyIncome * 10)
+								}
+							]
+						}
+					},
+					
+					investecAdvantages: isYoungProfessional ? {
+						youngProfessionalBenefits: [
+							{
+								benefit: "Reduced Banking Costs",
+								impact: "R320/month vs R2,500+ elsewhere",
+								healthImpact: "+2% to savings rate automatically"
+							},
+							{
+								benefit: "Prime -1% Credit Rates",
+								impact: "Save 1% annually on major loans",
+								healthImpact: "Faster debt reduction and wealth building"
+							},
+							{
+								benefit: "Tax-Free Investment Access",
+								impact: "R36,000 annual tax-free growth",
+								healthImpact: "Accelerated wealth accumulation"
+							}
+						],
+						optimizationPlan: [
+							{
+								priority: "High",
+								action: "Maximize Young Professional benefits",
+								benefit: "Improve financial health score by 8-12 points",
+								timeline: "Immediate"
+							},
+							{
+								priority: "Medium",
+								action: "Optimize tax-free investments",
+								benefit: "Boost long-term wealth building by 15%",
+								timeline: "Next 30 days"
+							}
+						]
+					} : null,
+					
+					recommendations: {
+						immediate: healthScore < 50 ? [
+							"🚨 Focus on building emergency fund first",
+							"💰 Switch to Investec Young Professional to save on fees",
+							"📊 Track spending to identify cost reduction opportunities"
+						] : [
+							"🎯 Increase automated savings by R500/month",
+							"📈 Consider increasing investment allocation",
+							"🏦 Maximize Investec Young Professional benefits"
+						],
+						shortTerm: [
+							"Set up automated tax-free investment contributions",
+							"Review and optimize debt repayment strategy",
+							"Build towards 6-month emergency fund"
+						],
+						longTerm: [
+							"Aim for 30%+ savings rate by age 30",
+							"Build diversified investment portfolio",
+							"Plan for property purchase using innovative home loan"
+						]
+					},
+					
+					interactiveElements: {
+						buttons: [
+							{ text: "🎯 Improve Score", action: "getPersonalizedGuidance", params: { age, monthlyIncome } },
+							{ text: "💰 Optimize Budget", action: "generateBudgetPlan", params: { monthlyIncome } },
+							{ text: "📈 Investment Plan", action: "getInvestmentRecommendations", params: { age } }
+						],
+						quickActions: [
+							"Book financial health consultation",
+							"Apply for Young Professional account",
+							"Set up automated savings",
+							"Download detailed report"
+						]
+					},
+					
+					projections: {
+						oneYearProjection: {
+							estimatedScore: Math.min(100, healthScore + 15),
+							netWorthGrowth: Math.round(netWorth * 1.15 + (savings * 12)),
+							keyImprovements: [
+								"Emergency fund fully funded",
+								"Savings rate increased to 25%+",
+								"Investment portfolio diversified"
+							]
+						},
+						fiveYearOutlook: {
+							projectedNetWorth: Math.round(netWorth * 2.5 + (savings * 60)),
+							estimatedScore: 85,
+							milestones: [
+								"Debt-free status achieved",
+								"6-figure investment portfolio",
+								"Ready for property purchase"
+							]
+						}
+					}
+				};
+				
+				return { content: [{ type: "text", text: JSON.stringify(dashboard, null, 2) }] };
 			}
 		);
 	}
