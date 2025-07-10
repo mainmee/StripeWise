@@ -85,21 +85,6 @@ const ScrollableApp = () => {
             </button>
           </section>
 
-          {/* Chatbot Section (Preview) */}
-          <section className="chatbot-section min-h-screen flex items-center justify-center">
-            <div className="text-center p-8 bg-white dark:bg-neutral-900 rounded-lg shadow-lg">
-              <h2 className="text-3xl font-bold mb-4">Experience StripeWise</h2>
-              <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Sign in to access your personalized AI assistant
-              </p>
-              <button
-                onClick={() => setCurrentView('signin')}
-                className="bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white px-6 py-3 rounded-lg font-medium hover:scale-105 transition-transform"
-              >
-                Sign In Now
-              </button>
-            </div>
-          </section>
         </div>
       </Providers>
     );
