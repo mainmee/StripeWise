@@ -10,7 +10,25 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const ScrollableApp = () => {
+  const [currentView, setCurrentView] = useState('intro'); // Start with intro
   const [showChat, setShowChat] = useState(false);
+  type User = { email: string; name: string } | null;
+  const [user, setUser] = useState<User>(null);
+
+  const handleSignIn = (email: string, password: any) => {
+    if (email && password) {
+      setUser({ email, name: email.split('@')[0] });
+      setCurrentView('landing'); // Go to landing page after signin
+    } else {
+      alert('Please enter email and password');
+    }
+  };
+
+  const handleSignOut = () => {
+    setUser(null);
+    setCurrentView('intro');
+    setShowChat(false);
+  };
 
   const scrollToServices = () => {
     const servicesSection = document.getElementById('services');
@@ -23,54 +41,151 @@ const ScrollableApp = () => {
   };
 
   useEffect(() => {
-    // Glimmer animation for the title
-    gsap.fromTo(
-      ".title",
-      { backgroundPosition: "0% 50%" },
-      {
-        backgroundPosition: "200% 50%",
-        duration: 2,
-        ease: "power1.inOut",
-        repeat: -1,
-      }
-    );
+    // Run animations based on current view
+    if (currentView === 'intro') {
+      // Glimmer animation for the intro title
+      gsap.fromTo(
+        ".intro-title",
+        { backgroundPosition: "0% 50%" },
+        {
+          backgroundPosition: "200% 50%",
+          duration: 2,
+          ease: "power1.inOut",
+          scrollTrigger: {
+            trigger: ".title-section",
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        }
+      );
 
-    // Animate service tiles on load
-    gsap.fromTo(
-      ".service-tile",
-      { 
-        opacity: 0, 
-        y: 50,
-        scale: 0.9 
-      },
-      {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        delay: 0.5,
+      // Fade-out animation for the title section
+      gsap.to(".title-section", {
+        opacity: 0,
+        duration: 1,
         ease: "power2.out",
-      }
-    );
-  }, []);
+        scrollTrigger: {
+          trigger: ".title-section",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    } else if (currentView === 'landing') {
+      // Glimmer animation for the landing title
+      gsap.fromTo(
+        ".title",
+        { backgroundPosition: "0% 50%" },
+        {
+          backgroundPosition: "200% 50%",
+          duration: 2,
+          ease: "power1.inOut",
+          repeat: -1,
+        }
+      );
 
+      // Animate service tiles on load
+      gsap.fromTo(
+        ".service-tile",
+        { 
+          opacity: 0, 
+          y: 50,
+          scale: 0.9 
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          delay: 0.5,
+          ease: "power2.out",
+        }
+      );
+    }
+  }, [currentView]);
+
+  // Introduction Page View - First screen users see
+  if (currentView === 'intro') {
+    return (
+      <Providers>
+        <div className="chat-container bg-neutral-50 text-base text-neutral-900 antialiased transition-colors selection:bg-blue-700 selection:text-white dark:bg-neutral-950 dark:text-neutral-100">
+          {/* Title Section */}
+          <section className="title-section min-h-screen flex flex-col items-center justify-center">
+            <h1 className="intro-title text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] bg-[length:200%_auto] mb-8">
+              StripeWise
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 text-center max-w-2xl">
+              Your AI-powered assistant for smart financial decisions
+            </p>
+
+            <button
+              onClick={() => setCurrentView('signin')}
+              className="bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] text-white px-8 py-4 rounded-full font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+            >
+              Get Started
+            </button>
+          </section>
+
+          {/* Chatbot Section (Preview) */}
+          <section className="chatbot-section min-h-screen flex items-center justify-center">
+           
+          </section>
+        </div>
+      </Providers>
+    );
+  }
+
+  // Sign In View
+  if (currentView === 'signin') {
+    return (
+      <Providers>
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-neutral-900 p-8 rounded-2xl shadow-xl w-full max-w-md">
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] mb-2">
+                StripeWise
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300">Welcome! Please sign in to continue.</p>
+            </div>
+            
+            <SignInForm onSignIn={handleSignIn} />
+          </div>
+        </div>
+      </Providers>
+    );
+  }
+
+  // Chat View
   if (showChat) {
     return (
       <Providers>
         <div className="chat-container bg-black text-white min-h-screen">
-          <button 
-            onClick={() => setShowChat(false)}
-            className="fixed top-4 left-4 z-10 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            ← Back to Home
-          </button>
+          <div className="flex justify-between items-center p-4 bg-gray-800 border-b border-gray-700">
+            <button 
+              onClick={() => setShowChat(false)}
+              className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+              ← Back to Home
+            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm">Hello, {user?.name}!</span>
+              <button
+                onClick={handleSignOut}
+                className="text-sm bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
           <App />
         </div>
       </Providers>
     );
   }
 
+  // Landing Page View - Shown after successful signin
   return (
     <Providers>
       <div className="min-h-screen bg-black text-white">
@@ -83,12 +198,21 @@ const ScrollableApp = () => {
             <a href="#services" className="text-gray-200 hover:text-white transition-colors font-medium">Services</a>
             <a href="#about" className="text-gray-200 hover:text-white transition-colors font-medium">About</a>
             <a href="#key-features" className="text-gray-200 hover:text-white transition-colors font-medium">Key Features</a>
-            <button 
-              onClick={() => setShowChat(true)}
-              className="bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-            >
-              Start Chat
-            </button>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-300">Welcome, {user?.name}!</span>
+              <button 
+                onClick={() => setShowChat(true)}
+                className="bg-white text-black px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                Start Chat
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
+                Sign Out
+              </button>
+            </div>
           </div>
         </nav>
 
@@ -98,9 +222,6 @@ const ScrollableApp = () => {
             <h1 className="title text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-gray-500 bg-[length:200%_auto] mb-6">
               Optimize your financial future with StripeWise
             </h1>
-            
-            
-           
             
             {/* Zebra Image */}
             <div className="mt-12 flex justify-center">
@@ -226,9 +347,7 @@ const ScrollableApp = () => {
                 </div>
               </div>
             </div>
-            
-            {/* Key Features */}
-            </div>
+          </div>
         </section>
         
         {/* Key Features Section - Full Width Black */}
@@ -285,5 +404,57 @@ const ScrollableApp = () => {
   );
 };
 
-const root = createRoot(document.getElementById("app")!);
+// Sign In Form Component
+type SignInFormProps = {
+  onSignIn: (email: string, password: string) => void;
+};
+
+const SignInForm: React.FC<SignInFormProps> = ({ onSignIn }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSignIn(email, password);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-neutral-800 dark:border-gray-600 dark:text-white"
+          placeholder="Email address"
+          required
+        />
+      </div>
+      
+      <div>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-neutral-800 dark:border-gray-600 dark:text-white"
+          placeholder="Password"
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="w-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F59E0B] text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-shadow"
+      >
+        Sign In
+      </button>
+    </form>
+  );
+};
+
+const container = document.getElementById("app");
+if (!container) {
+  throw new Error('Root container with id "app" not found');
+}
+const root = createRoot(container);
 root.render(<ScrollableApp />);
